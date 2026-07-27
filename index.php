@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BOM Ingestion System | Industrial Decision Intelligence</title>
+    <title>BOM Ingestion & Analysis System | Industrial Decision Intelligence</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter & Outfit -->
@@ -59,7 +59,7 @@
             </div>
         </div>
         <div>
-            <span class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-indigo-300">v1.0.0</span>
+            <span class="text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-indigo-300">v1.1.0</span>
         </div>
     </header>
 
@@ -70,6 +70,17 @@
             <div class="absolute -top-24 -left-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl"></div>
             <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl"></div>
 
+            <!-- Tab Switcher -->
+            <div class="flex border-b border-slate-800/80 mb-8 relative z-20">
+                <button id="tab-ingest" class="flex-1 pb-4 text-sm font-semibold tracking-wider uppercase border-b-2 border-indigo-500 text-indigo-400 focus:outline-none transition-all duration-300">
+                    Ingest BOM
+                </button>
+                <button id="tab-explode" class="flex-1 pb-4 text-sm font-semibold tracking-wider uppercase border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none transition-all duration-300">
+                    Explode BOM
+                </button>
+            </div>
+
+            <!-- Ingest BOM View -->
             <div id="upload-container" class="relative z-10 space-y-6">
                 <!-- Title Section -->
                 <div class="text-center mb-8">
@@ -177,7 +188,7 @@
                 </div>
             </div>
 
-            <!-- Result Section -->
+            <!-- Ingest Result View -->
             <div id="result-container" class="hidden relative z-10 space-y-6">
                 <!-- Checkmark Icon with Pulse -->
                 <div class="text-center">
@@ -227,6 +238,72 @@
                     <span>Upload Another Document</span>
                 </button>
             </div>
+
+            <!-- Explode BOM View -->
+            <div id="explode-container" class="hidden relative z-10 space-y-6">
+                <!-- Title Section -->
+                <div class="text-center mb-8">
+                    <h1 class="font-outfit text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-3">
+                        Explode Bill of Materials
+                    </h1>
+                    <p class="text-slate-400 text-sm md:text-base max-w-md mx-auto">
+                        Select an ingested top-level product to view its fully exploded sub-components and rolled-up quantities.
+                    </p>
+                </div>
+
+                <!-- Selection Dropdown and Action -->
+                <div class="space-y-4">
+                    <label for="product-select" class="block text-xs font-semibold text-slate-400 uppercase tracking-widest">Select Product</label>
+                    <div class="relative">
+                        <select id="product-select" class="w-full bg-slate-900/60 border border-slate-700 rounded-2xl px-4 py-4 text-slate-200 focus:outline-none focus:border-indigo-500 transition-all appearance-none cursor-pointer">
+                            <option value="">-- Loading products... --</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <button id="action-explode-btn" class="w-full glow-button bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-300 flex items-center justify-center space-x-3">
+                        <span>Explode BOM</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Explode Error Message -->
+                <div id="explode-error" class="hidden flex items-start space-x-3 p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    <span id="explode-error-text">Failed to explode BOM.</span>
+                </div>
+
+                <!-- Results Table -->
+                <div id="exploded-result" class="hidden space-y-4">
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Exploded BOM Rollup</p>
+                    <div class="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/40">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-900/80 border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                        <th class="px-6 py-4">Part Number</th>
+                                        <th class="px-6 py-4">Description</th>
+                                        <th class="px-6 py-4 text-right">Total Qty</th>
+                                        <th class="px-6 py-4">UOM</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="exploded-table-body" class="divide-y divide-slate-800/60 text-sm text-slate-300">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -441,6 +518,159 @@
             uploadContainer.classList.remove('hidden');
             resetFile();
         });
+
+
+        // ==========================================
+        // EXPLODE BOM VIEW SCRIPTS
+        // ==========================================
+
+        const tabIngest = document.getElementById('tab-ingest');
+        const tabExplode = document.getElementById('tab-explode');
+        const explodeContainer = document.getElementById('explode-container');
+        const productSelect = document.getElementById('product-select');
+        const actionExplodeBtn = document.getElementById('action-explode-btn');
+        const explodeError = document.getElementById('explode-error');
+        const explodeErrorText = document.getElementById('explode-error-text');
+        const explodedResult = document.getElementById('exploded-result');
+        const explodedTableBody = document.getElementById('exploded-table-body');
+
+        tabIngest.addEventListener('click', () => {
+            setActiveTab('ingest');
+        });
+
+        tabExplode.addEventListener('click', () => {
+            setActiveTab('explode');
+            loadProducts();
+        });
+
+        function setActiveTab(tab) {
+            if (tab === 'ingest') {
+                tabIngest.className = "flex-1 pb-4 text-sm font-semibold tracking-wider uppercase border-b-2 border-indigo-500 text-indigo-400 focus:outline-none transition-all duration-300";
+                tabExplode.className = "flex-1 pb-4 text-sm font-semibold tracking-wider uppercase border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none transition-all duration-300";
+                
+                // Show either upload-container or result-container (depending on state)
+                if (resultContainer.classList.contains('hidden')) {
+                    uploadContainer.classList.remove('hidden');
+                } else {
+                    resultContainer.classList.remove('hidden');
+                }
+                explodeContainer.classList.add('hidden');
+            } else {
+                tabExplode.className = "flex-1 pb-4 text-sm font-semibold tracking-wider uppercase border-b-2 border-indigo-500 text-indigo-400 focus:outline-none transition-all duration-300";
+                tabIngest.className = "flex-1 pb-4 text-sm font-semibold tracking-wider uppercase border-b-2 border-transparent text-slate-400 hover:text-slate-200 focus:outline-none transition-all duration-300";
+                
+                uploadContainer.classList.add('hidden');
+                resultContainer.classList.add('hidden');
+                explodeContainer.classList.remove('hidden');
+            }
+        }
+
+        // Fetch products list
+        function loadProducts() {
+            productSelect.innerHTML = '<option value="">-- Loading products... --</option>';
+            fetch('api/v1/exploded.php')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        if (data.data.length === 0) {
+                            productSelect.innerHTML = '<option value="">No top-level products found. Upload one first.</option>';
+                        } else {
+                            productSelect.innerHTML = '<option value="">-- Select a Product --</option>';
+                            data.data.forEach(prod => {
+                                const opt = document.createElement('option');
+                                opt.value = prod.id;
+                                opt.textContent = `${prod.name} (${prod.part_no})`;
+                                productSelect.appendChild(opt);
+                            });
+                        }
+                    } else {
+                        productSelect.innerHTML = '<option value="">Failed to load products.</option>';
+                    }
+                })
+                .catch(err => {
+                    productSelect.innerHTML = '<option value="">Error connecting to API.</option>';
+                });
+        }
+
+        // Explode button click handler
+        actionExplodeBtn.addEventListener('click', () => {
+            const partId = productSelect.value;
+            if (!partId) {
+                showExplodeError('Please select a product first.');
+                return;
+            }
+
+            hideExplodeError();
+            explodedResult.classList.add('hidden');
+            actionExplodeBtn.disabled = true;
+            actionExplodeBtn.querySelector('span').textContent = 'Exploding...';
+
+            fetch(`api/v1/exploded.php?part_id=${partId}`)
+                .then(res => {
+                    if (!res.ok) {
+                        return res.json().then(err => { throw err; });
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    actionExplodeBtn.disabled = false;
+                    actionExplodeBtn.querySelector('span').textContent = 'Explode BOM';
+
+                    if (data.status === 'success') {
+                        renderExplodedTable(data.data);
+                    } else {
+                        showExplodeError(data.message || 'Failed to explode BOM.');
+                    }
+                })
+                .catch(err => {
+                    actionExplodeBtn.disabled = false;
+                    actionExplodeBtn.querySelector('span').textContent = 'Explode BOM';
+                    showExplodeError(err.message || 'Error occurred while contacting server.');
+                });
+        });
+
+        function renderExplodedTable(parts) {
+            explodedTableBody.innerHTML = '';
+            if (parts.length === 0) {
+                explodedTableBody.innerHTML = '<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500 font-medium">No components found beneath this product.</td></tr>';
+            } else {
+                parts.forEach(part => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-900/40 border-b border-slate-800/40 last:border-0 transition-colors";
+                    
+                    // Format quantity
+                    const qtyFloat = parseFloat(part.quantity);
+                    const qtyStr = qtyFloat % 1 === 0 ? qtyFloat.toFixed(0) : qtyFloat.toFixed(4);
+
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 font-semibold text-indigo-300 font-mono">${escapeHtml(part.part_no)}</td>
+                        <td class="px-6 py-4 font-medium text-slate-200">${escapeHtml(part.name)}</td>
+                        <td class="px-6 py-4 text-right font-bold text-emerald-400 font-mono">${qtyStr}</td>
+                        <td class="px-6 py-4 text-slate-400">${escapeHtml(part.unit)}</td>
+                    `;
+                    explodedTableBody.appendChild(tr);
+                });
+            }
+            explodedResult.classList.remove('hidden');
+        }
+
+        function showExplodeError(msg) {
+            explodeErrorText.textContent = msg;
+            explodeError.classList.remove('hidden');
+        }
+
+        function hideExplodeError() {
+            explodeError.classList.add('hidden');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;")
+                      .replace(/</g, "&lt;")
+                      .replace(/>/g, "&gt;")
+                      .replace(/"/g, "&quot;")
+                      .replace(/'/g, "&#039;");
+        }
     </script>
 </body>
 </html>
